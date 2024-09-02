@@ -31,7 +31,7 @@ public:
     void insertarVertice(int);
     void insertarArista(int, int, int);
     void imprimirGrafo();
-
+    void dijkstraSPT(int s); // Método para encontrar el SPT usando el algoritmo de Dijkstra
 };
 
 grafo::grafo() {
@@ -75,7 +75,6 @@ void grafo::insertarArista(int origen, int destino, int peso) {
     }
 }
 
-
 void grafo::imprimirGrafo() {
     pvertice p = pGrafo;
     if (p == NULL) cout << "Grafo vacio" << endl;
@@ -102,8 +101,66 @@ void grafo::imprimirGrafo() {
 
 
 
+void grafo::dijkstraSPT(int s) {
+    // Mapa de distancias y padres
+    vector<int> dist(100, INT_MAX); // Asume como máximo 100 vértices
+    vector<int> parent(100, -1);
+    vector<bool> visited(100, false);
+    
+    // Cola de prioridad para seleccionar el vértice con menor distancia
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    
+    // Inicializa la distancia del vértice de inicio
+    dist[s] = 0;
+    pq.push({0, s});
 
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
+        
+        // Si el vértice ya fue visitado, lo omite
+        if (visited[u]) continue;
+        visited[u] = true;
+        
+        // Encuentra el vértice correspondiente al índice u
+        pvertice p = pGrafo;
+        while (p != NULL && p->datoOrigen != u) {
+            p = p->sgteVertice;
+        }
+        
+        // Si encuentra el vértice, revisa sus aristas adyacentes
+        if (p != NULL) {
+            parista a = p->adyacente;
+            while (a != NULL) {
+                int v = a->datoDestino;
+                int peso = a->peso;
+                
+                
+                if (!visited[v] && dist[u] + peso < dist[v]) {
+                    dist[v] = dist[u] + peso;
+                    parent[v] = u;
+                    pq.push({dist[v], v});
+                }
+                a = a->sgteArista;
+            }
+        }
+    }
 
+    // Imprime las distancias 
+    cout << "Distancias desde el vertice " << s << ":\n";
+    for (int i = 0; i < dist.size(); i++) {
+        if (dist[i] != INT_MAX) {
+            cout << "Distancia a " << i << ": " << dist[i] << "\n";
+        }
+    }
+
+    cout << "Arbol de Expansion de Menor Peso (SPT) desde el vertice " << s << ":\n";
+    for (int i = 0; i < parent.size(); i++) {
+        if (parent[i] != -1) {
+            cout << parent[i] << "-" << i << "\n";
+        }
+    }
+}
 int main() {
     grafo g;
     
@@ -128,6 +185,8 @@ int main() {
     // Imprimir el grafo
     g.imprimirGrafo();
 
+    // Ejecutar el algoritmo de Dijkstra desde el vértice 0
+    g.dijkstraSPT(0);
 
     return 0;
 }
