@@ -25,7 +25,7 @@ jobs:
         run: npm install
 
       - name: Run tests
-      	working-directory: actividad1/devops-practice/
+      	working-directory: .actividad1/devops-practice/
         run: npm test
         
 
