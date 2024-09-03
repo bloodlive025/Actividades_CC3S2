@@ -26,4 +26,4 @@ jobs:
 
       - name: Run tests
         run: npm test
-
+	working-directory: .actividad1/devops-practice/
