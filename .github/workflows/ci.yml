@@ -22,10 +22,8 @@ jobs:
           node-version: '14'
 
       - name: Install dependencies
-        working-directory: .actividad1/devops-practice/
         run: npm install
 
       - name: Run tests
-        working-directory: .actividad1/devops-practice/
         run: npm test
 
