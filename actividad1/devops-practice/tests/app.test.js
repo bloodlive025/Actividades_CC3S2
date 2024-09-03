@@ -1,9 +1,18 @@
 const request = require('supertest');//Importa la biblioteca supertest para simular solicitudes HTTPS
 const app = require('../src/app');//Importa la aplicacion Express app.js, lo que permitira realizar pruebas sobre la aplicacion
+
+beforeAll((done) => {
+    server = app.listen(() => {
+        console.log(`Server is running on port ${server.address().port}`);
+        done();
+    });
+});
+
+afterAll((done) => {
+    server.close(done);
+});
+
 describe('GET /', () => {
-	beforeEach(() => {
-	  jest.setTimeout(10000); // Establece el tiempo de espera a 10 segundos
-		  });
 
 	it('should return Hello, World!', async () => {
 	const res = await request(app).get('/');
