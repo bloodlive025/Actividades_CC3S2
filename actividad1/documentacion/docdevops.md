@@ -48,15 +48,19 @@ app.get('/', (req, res) => {
 res.send('Hello, World!');
 });
 
-const port = process.env.PORT || 3000;//Establece el puerto donde la aplicacion escuchara a las solicitudes entrantes
-
-//Inicia el servidor y lo pone a escuchar en el puerto indicado anteiormente
-app.listen(port, () => {
-console.log(Server running on port ${port});
-});
-
 module.exports = app//Exporta la instancia de la aplicacion app para que pueda  ser utilizada en otros archivos. 
  ```
+
+Adicionalmente debemos crear un archivo server.js donde se iniciará el servidor.
+
+```shell
+const app = require('./app');
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
+
+```
 
 Luego escribimos un test basico en tests/app.test.js:
 
@@ -112,4 +116,38 @@ Primero creamos la estructura para GitHb Actions usando los siguientes comandos:
 ```shell
 mkdir -p .github/workflows
 touch .github/workflows/ci.yml
+```
+Y luego definimos el flujo de trabajo en .github/workflows/ci.yml
+
+```shell
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        working-directory: .actividad1/devops-practice/
+
 ```
