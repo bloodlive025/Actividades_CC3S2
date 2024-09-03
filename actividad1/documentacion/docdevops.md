@@ -75,5 +75,41 @@ describe('GET /', () => {
 ```
 
 Configuramos el script de test en package.json
+```shell
 
+{
+"name": "devops-practice",
+"version": "1.0.0",
+"main": "index.js",
+"scripts": {
+"test": "jest"
+},
+"keywords": [],
+"author":"",
+"dependencies": {
+"express": "^4.19.2",
+"jest": "29.7.0"
+},
+"devDependencies": {
+"supertest": "^7.0.0"
+}
+}
 
+```
+Usamos el siguiente comando para testear nuestro codigo: 
+```shell
+npx jest
+```
+
+Luego de testear el codigo lo inicializamos para poder observar que es lo que se muestra en el puerto 3000.
+
+![](./img/i2.png)
+
+<h1>Pipeline CI/CD</h1>
+<h2>Integracion continua(CI) con GitHub Actions</h2>
+Primero creamos la estructura para GitHb Actions usando los siguientes comandos:
+
+```shell
+mkdir -p .github/workflows
+touch .github/workflows/ci.yml
+```
