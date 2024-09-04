@@ -30,8 +30,10 @@ jobs:
         run: npm test
 	
       - name: Build Docker image
+      	working-directory: ./actividad1/devops-practice/
         run: docker build -t devops-practice .
 
       - name: Run Docker container
+      	working-directory: ./actividad1/devops-practice/
         run: docker run -d -p 3000:3000 devops-practice
 
