@@ -151,3 +151,51 @@ jobs:
         working-directory: .actividad1/devops-practice/
 
 ```
+
+Luego subimos el codigo a GitHub
+
+Si todo sale correctamente podemos observar el workflow run de la siguiente manera:
+![](./img/i3.png)
+![](./img/i4.png)
+![](./img/i5.png)
+
+Donde podemos observar que las dependencias se instalan de manera automatica, y además el test se ejecuta de manera automatica.
+
+<h2>Entrega Continua(CD) con Docker</h2>
+Primero creamos un archivo Docker en nuestro proyecto usando:
+
+
+```shell
+touch Dockerfile
+```
+Dentro de este archivo colocamos:
+
+```shell
+# Usa la imagen oficial de Node.js
+FROM node:14
+# Establece el directorio de trabajo en el contenedor
+WORKDIR /app
+# Copia los archivos package.json y package-lock.json
+COPY package*.json ./
+# Instala las dependencias
+RUN npm install
+# Copia el resto de los archivos de la aplicación
+COPY . .
+# Expone el puerto en el que la aplicación correrá
+EXPOSE 3000
+# Comando para iniciar la aplicación
+CMD ["node", "src/server.js"]
+
+```
+
+Luego construimos la imagen usando:
+```shell
+docker build -t devops-practice .
+```
+
+![](./img/i6.png)
+Y finalmente corremos el servidor usando:
+```shell
+docker build -t devops-practice .
+```
+![](./img/i7.png)
