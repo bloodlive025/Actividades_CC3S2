@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         working-directory: ./actividad1/devops-practice/
         run: npm test
-	
+
       - name: Build Docker image
       	working-directory: ./actividad1/devops-practice/
         run: docker build -t devops-practice .
