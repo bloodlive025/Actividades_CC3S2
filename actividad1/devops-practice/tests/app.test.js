@@ -1,25 +1,20 @@
-const request = require('supertest');//Importa la biblioteca supertest para simular solicitudes HTTPS
-const app = require('../src/app');//Importa la aplicacion Express app.js, lo que permitira realizar pruebas sobre la aplicacion
-
-let server;
-
-beforeAll((done) => {
-    server = app.listen(() => {
-        console.log(`Server is running on port ${server.address().port}`);
-        done();
-    });
-});
-
-afterAll((done) => {
-    server.close(done);
-});
-
+const request = require('supertest');
+const app = require('../src/app');
 
 describe('GET /', () => {
-	it('should return Hello, World!', async () => {
-	const res = await request(app).get('/');
-	expect(res.statusCode).toEqual(200);
-	expect(res.text).toBe('Hello, World!');
-	});
-	
+    let server;
+
+    beforeAll(() => {
+        server = app.listen(0); // Usar 0 permite al sistema asignar un puerto libre automáticamente
+    });
+
+    afterAll(() => {
+        server.close(); // Cierra el servidor después de que las pruebas hayan terminado
+    });
+
+    it('should return Hello, World!', async () => {
+        const res = await request(app).get('/');
+        expect(res.statusCode).toEqual(200);
+        expect(res.text).toBe('Hello, World!');
+    });
 });
