@@ -20,3 +20,5 @@ Significa que DevOps es mucho más que solo herramientas, equipos o procesos esp
 
 Los equipos autónomos y multifuncionales son la piedra angular de una implementación exitosa de DevOps, ya que en estos grupos se mejora la agilidad y la eficiencia en la entrega de un producto software. En un equipo multifuncional la velocidad de toma de decisiones se mejora debido a la existencia de una gran variedad de habilidades dentro del grupo. Un equipo autónomo tiene la capacidad de tomar decisiones debido a que tienen el empoderamiento de tomar acciones por si mismos sin tener que esperar que sus superiores tomen decisiones. Todo esto ayuda a mejorar una cultura de responsabilidad y colaboración. 
 
+<h2>Documentacion</h2>
+[Documentacion Actividad1](./documentacion/docdevops.md)
