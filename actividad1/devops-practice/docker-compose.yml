@@ -6,5 +6,5 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-    container_name: devops-practice-container
+    container_name: devops-practicese-container
 

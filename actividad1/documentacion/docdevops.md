@@ -49,6 +49,14 @@ res.send('Hello, World!');
 });
 
 module.exports = app//Exporta la instancia de la aplicacion app para que pueda  ser utilizada en otros archivos. 
+
+if (require.main === module) {
+    const port = process.env.PORT || 3000; 
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
+
  ```
 
 Adicionalmente debemos crear un archivo server.js donde se iniciará el servidor.
@@ -184,7 +192,7 @@ COPY . .
 # Expone el puerto en el que la aplicación correrá
 EXPOSE 3000
 # Comando para iniciar la aplicación
-CMD ["node", "src/server.js"]
+CMD ["node", "src/app.js"]
 
 ```
 
@@ -196,6 +204,99 @@ docker build -t devops-practice .
 ![](./img/i6.png)
 Y finalmente corremos el servidor usando:
 ```shell
-docker build -t devops-practice .
+docker run -d -p 3000:3000 devops-practice
 ```
-![](./img/i7.png)
+docker run: Es el comando basico para ejecutar el contenedor a partir de una imagen
+
+-d: Significa "detached mode" , indica que el contenedor se ejecutara en segundo plano, lo que quiere decir que no se mostrara en el terminal
+
+-p 3000:3000: Significa el mapeo de puertos entre la maquina host y el contenedor, en otras palabras el puerto 3000 de nuestra maquina estara enlazada al puerto 3000 del puerto del contenedor.
+
+devops-practice: Es el nombre de la imagen docker que vamos a utilizar.
+
+
+<h2>Automatizando el despliegue con GitHub Actions</h2>
+
+Actualizamos el archivo .github/workflows/ci.yml para construir y desplegar la imagen docker.
+
+```shell
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        working-directory: ./actividad1/devops-practice/
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./actividad1/devops-practice/
+        run: npm test
+
+      - name: Build Docker image
+        working-directory: ./actividad1/devops-practice/
+        run: docker build -t devops-practice .
+
+      - name: Run Docker container
+        working-directory: ./actividad1/devops-practice/
+        run: docker run -d -p 3000:3000 devops-practice
+
+
+```
+En el archivo ci.yml se agrego los comandos para construir la imagen dockey y para correr esta imagen en el puerto 3000.Se implementó los comandos anteriores para probar en GitHub Actions si la imagen se creaba correctamente y si la ejecucion de Docker ocurría con normalidad. 
+
+<h1>Automatizacion de la configuracion y gestion del entorno local usando Docker compose</h1>
+Docker compose es una herramienta que permite definir y ejecutar aplicaciones de multiples contenedores. Puedes definir los servicios de tu aplicacion en un archivo YAML para luego ejecutarlo con un solo comando.
+
+```shell
+version: '3.8'
+services:
+  app:
+    build: ./
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    container_name: devops-practice-container
+```
+
+Version: Nos indica la version del formato docker-compose-yml.
+
+services: Dentro de services definimos los contenedores que se van a ejecutar, en este cosa ejecutaremos el servicio llamado app.
+
+build: Construira una imagen usando el archivo docker que se encuentra en la ruta de directorio que coloquemos.
+
+ports: Indica el mapeo entre el puerto del host con el puerto del contenedor
+
+enviroment: Define variables de entorno para el contenedor, la variable NODE_ENV se utiliza para especificar en que tipo de entorno esta ejecuntadose la aplicacion. Como por ejemplo deveploment, production o test.
+
+Container_name: Asigna un nombre especifico al contenedor.
+
+<h3>Hacemos correr la aplicacion usando Docker Compose</h3>
+
+```shell
+
+docker-compose up --build -d
+
+```
+
+![](./img/i8.png)
