@@ -15,12 +15,6 @@ npm init -y
 
 ![](./img/i1.png)
 
-Instalamos las dependencias necesarias con el siguiente comando:
-
-```shell
-npm install express jest
-```
-Usando el comando anterior agregaremos los paquetes `express` y `jest` en nuestro proyecto. El paquete express nos permitira crear y gestionar rutas como tambien manejar solicitudes HTTPS,mientras que el paquete Jest es utilizado para pruebas unitarias y de integracion en aplicaciones Node.js.
 
 Creamos los directorios src y test usando el siguiente comando:
 
@@ -59,16 +53,7 @@ if (require.main === module) {
 
  ```
 
-Adicionalmente debemos crear un archivo server.js donde se iniciará el servidor.
 
-```shell
-const app = require('./app');
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
-
-```
 
 Luego escribimos un test basico en tests/app.test.js:
 
@@ -108,9 +93,21 @@ Configuramos el script de test en package.json
 }
 
 ```
-Usamos el siguiente comando para testear nuestro codigo: 
+
+Dentro de nuestro archivo package.json podemos observar las dependencias express y jest. El paquete express nos permitira crear y gestionar rutas como tambien manejar solicitudes HTTPS,mientras que el paquete Jest es utilizado para pruebas unitarias y de integracion en aplicaciones Node.js.
+
+Luego instalamos las dependencias necesarias usando:
+
 ```shell
-npx jest
+npm install
+```
+
+npm install: Se usa para descargar todas las dependencias indicadas en las secciones dependecies y devDependecies de nuestro archivo package.json. Ademas crea un archivo llamado package-lock.json si no existe.
+
+Usamos el siguiente comando para testear nuestro codigo: 
+
+```shell
+npm test
 ```
 
 Luego de testear el codigo lo inicializamos para poder observar que es lo que se muestra en el puerto 3000.
@@ -265,6 +262,7 @@ jobs:
 En el archivo ci.yml se agrego los comandos para construir la imagen dockey y para correr esta imagen en el puerto 3000.Se implementó los comandos anteriores para probar en GitHub Actions si la imagen se creaba correctamente y si la ejecucion de Docker ocurría con normalidad. 
 
 <h1>Automatizacion de la configuracion y gestion del entorno local usando Docker compose</h1>
+<h3>Docker Compose</h3>
 Docker compose es una herramienta que permite definir y ejecutar aplicaciones de multiples contenedores. Puedes definir los servicios de tu aplicacion en un archivo YAML para luego ejecutarlo con un solo comando.
 
 ```shell
@@ -291,7 +289,7 @@ enviroment: Define variables de entorno para el contenedor, la variable NODE_ENV
 
 Container_name: Asigna un nombre especifico al contenedor.
 
-<h3>Hacemos correr la aplicacion usando Docker Compose</h3>
+<h3>Corriendo la aplicacion usando Docker Compose</h3>
 
 ```shell
 
@@ -300,3 +298,8 @@ docker-compose up --build -d
 ```
 
 ![](./img/i8.png)
+
+<h2>Conclusiones</h2>
+Tener un pipeline automatizado permite detectar errores de manera automatica cada vez que haya un pull request o un push. Gracias a esto se detecta errores de manera mas rapida. Esto reduce la friccion entre los equipos de desarrollo y operaciones pues el gitHub actions brinda una plataforma donde los del equipo de desarrollo pueden entregar codigo con seguridad y consistencia y el equipo de operaciones tiene visibilidad del proceso de despliegue, lo que permite una respuesta rapida en caso de problema.
+
+
