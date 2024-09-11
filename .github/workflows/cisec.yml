@@ -1,0 +1,42 @@
+name: CI/CD SEC Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        working-directory: ./actividad2/devops-practice/
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./actividad2/devops-practice/
+        run: npm test
+
+      - name: Run security audit
+        working-directory: ./actividad2/devops-practice/
+        run: npm audit
+
+      - name: Build Docker image
+        working-directory: ./actividad2/devops-practice/
+        run: docker build -t devops-practice .
+
+      - name: Run Docker container
+        working-directory: ./actividad2/devops-practice/
+        run: docker run -d -p 3000:3000 devops-practice
