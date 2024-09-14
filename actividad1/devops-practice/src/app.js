@@ -5,11 +5,7 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
-app.get('/delay', (req, res) => {
-    setTimeout(() => {
-        res.send('This was delayed by 2 seconds');
-    }, 2000);
-});
+
 
 module.exports = app;
 
