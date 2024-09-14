@@ -1,6 +1,23 @@
 <h1>Documentacion de la actividad 2</h1>
 
+
+
 <h2>Implementacion de DevSecops</h2>
+
+<h3>Configuracion del entorno</h3>
+Implementamos la API REST en src/app.js
+
+
+![](./images/i.png)
+
+Se agrego un endpoint para exponer las metricas:
+```shell
+
+app.get('/metrics', async (req, res) 
+
+```
+
+<h3>Herramienta de seguridad audit</h3>
 
 Usamos una herramienta de seguridad de incluida en node usando el siguiente comando:
 ```shell
@@ -177,6 +194,17 @@ services:
       - "3001:3000"
 
 ```
+
+![](./images/i6.png)
+
+La aplicacion prometheus correra en el puerto 9090 y al abrir el puerto 9090 en el local host podremos observar las metricas.
+
+![](./images/i7.png)
+
+Al abrir grafana crearemos un nuevo dashboard y en el dashboard usaremos las metricas que nos brinda prometheus.
+
+En este caso hemos usado el PROMQL para saber si nuestro servidor esta corriendo o no. El valor 1 significa que el servidor esta ejecuntandose con normalidad y el valor 0 significa que el servidor a dejado de ejeutarse
+![](./images/i8.png)
 
 
 <h3>Conclusiones</h3>
