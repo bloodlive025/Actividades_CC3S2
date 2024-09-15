@@ -124,5 +124,102 @@ Lo cual nos dara la siguiente salida:
 
 <h2>Trabajar con branches</h2>
 
+Hasta ahora hemos trabajo en git con un historial continuo , pero tambien se puede trabajar en un historial de entorno paralelo. Esto se logra al crear nuevas ramas(branches), donde podemos agregar nuevas caracteristicas al codigo o arreglar bugs sin afectar la base del codigo principal.
+
+Para crear una nueva rama a partir de la rama actual se usa el siguiente comando:
+
+```shell
+
+git branch develop
+
+```
+
+![](./img/i5.png)
+
+Para cambiar a la nueva rama usamos el comando:
+
+```shell
+
+git checkout develop
+
+```
+
+![](./img/i6.png)
+
+Si queremos observar las ramas de nuestro repositorio, escribimos el siguiente comando:
+
+```shell
+
+git branch 
+
+```
+
+Ahora si queremos crear una rama desde una rama en especifico por ejemplo la rama develop usamos el siguiente comando:
+
+```shell
+
+git branch feature/login develop
+
+```
 
 
+Tambien podemos crear una nueva rama a partir de un commit especifico , para ello solo usamos el hash del commit desde donde queremos crear la rama
+
+```shell
+
+git branch hotfix/bugfix 'c35641a'
+
+```
+
+![](./img/i7.png)
+
+ <h2>Fusionando branches</h2>
+
+ Primero vamos al branch donde deseamos fusionar las ramas y usamos el siguiente comando si quisieramos fusionarlo con la rama develop.
+
+ ```shell
+
+git merge develop
+
+ ```
+
+ Una vez fusionado la rama y que ya no sea necesaria, puede eliminarse usando el siguiente comando:
+
+ ```shell
+
+git branch -d develop
+
+ ```
+
+ <h1>Ejercicios</h1>
+ 
+ <h2>Ejercicio1: Manejo avanzado de branches y resolucion de conflictos</h2>
+
+Primero creamos una rama llamada feature/advances-feature y luego cambiamos a esta rama:
+
+```shell
+
+git branch feature/advanced-feature
+
+git checkout feature/advanced-feature
+
+```
+
+Luego creamos el archivo main.py y agregamos el siguiente codigo:
+
+![](./img/i8.png)
+
+Añadimos y confirmamos estos cambios en la rama feature/advanced-feature.
+
+```shell 
+
+git add main.py
+
+git commit -m "Add greet function in advanced feature"
+
+```
+
+![](./img/i9.png)  
+
+
+dassdsss
