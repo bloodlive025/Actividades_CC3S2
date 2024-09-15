@@ -191,11 +191,13 @@ git branch -d develop
 
  ```
 
- <h1>Ejercicios</h1>
+<h1>Ejercicios</h1>
  
- <h2>Ejercicio1: Manejo avanzado de branches y resolucion de conflictos</h2>
+<h2>Ejercicio1: Manejo avanzado de branches y resolucion de conflictos</h2>
 
-Primero creamos una rama llamada feature/advances-feature y luego cambiamos a esta rama:
+Dentro de un directorio creamos un archivo main.py.
+
+Luego creamos una rama llamada feature/advances-feature y luego cambiamos a esta rama:
 
 ```shell
 
@@ -221,5 +223,65 @@ git commit -m "Add greet function in advanced feature"
 
 ![](./img/i9.png)  
 
+Luego cambiamos a la rama main:
 
-dassdsss
+```shell
+git checkout main
+```
+
+En la rama main pondremos el siguiente codigo en main.py:
+
+```shell 
+def greet():
+    print('Hello Word-updated in main')
+
+greet()
+
+```
+Añadimos y confirmamos estos cambios en la rama main:
+
+```shell
+git add main.py
+git commit -m "Update main.py in main branch"
+
+```
+
+Cuando intentamos fusionar los cambios de la rama feature/advanced-feature y la rama main usando el comando:
+
+```shell
+git merge feature/advanced-feature
+```
+
+Nos saldra el siguiente mensaje:
+
+![](./img/i10.png)  
+
+Para resolver este conflicto debemos abrir el archivo y resolverlo manualmente
+
+Luego de resolver el conflicto añadimos y confirmamos los cambios:
+
+```shell 
+
+git add main.py
+
+git commit -m "Resolve merge conflict between main and feature/advanced-feature"
+
+```
+
+![](./img/i11.png)  
+
+Finalmente eliminamos la rama feature/advanced-feature:
+
+```shell
+
+git branch -d feature/add-feature"
+
+```
+
+<h2>Ejercicio2: Exploración y manipulación del historial de commits</h2>
+
+
+
+pick 1a2b3c4 "Add first-update"
+squash 2b3c4d5 "Add-second-update"
+squash 3c4d5e6 "Add-third-update"
