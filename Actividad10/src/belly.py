@@ -22,3 +22,8 @@ class Belly:
         if self.tiempo_esperado >= 1.5 and self.pepinos_comidos > 10:
             return True
         return False
+    
+    def cantidad_invalida(self):
+        if self.pepinos_comidos > 50:
+            return True
+        return False

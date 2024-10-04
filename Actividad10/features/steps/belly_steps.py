@@ -50,23 +50,34 @@ numeros_extendido = {
 
 @given('que he comido "{cantidad}" pepinos')
 def step_given_comido_variable(context,cantidad):
-    if isDigit(cantidad):
-        belly.comer(int(cantidad))
+    pattern = re.compile(r'(?:al menos\s)?(?:menos\sde\s)?(?:mas\sde\s)?(?:un\smonton\sde)?(?:(\w*)?)?')
+    match = pattern.match(cantidad.lower())
+    if 'un monton de' in cantidad:
+        belly.comer(11)
+        return 0
+    print(match.group(1))
+    if match.group(0)!='':
+        if isDigit(match.group(1)):
+            number_pepinos=match.group(1)
+            if "mas de" in cantidad:
+                belly.comer(int(number_pepinos)+1)
+            elif "menos de" in cantidad:
+                belly.comer(int(number_pepinos)-1)
+            else:
+                belly.comer(int(number_pepinos))  
+        else:
+            number_pepinos=convertir_palabra_a_numero(match.group(1))
+            if "mas de" in cantidad:
+                belly.comer(int(number_pepinos)+1)
+            elif "menos de" in cantidad:
+                belly.comer(int(number_pepinos)-1)
+            else:
+                belly.comer(number_pepinos)        
     else:
-        numero=convertir_palabra_a_numero(cantidad)
-        belly.comer(numero)        
+        raise ValueError(f"No se pudo interpretar la cantidad de pepino: {cantidad}")
 
 
-@given('que he comido mas de "{cantidad}" pepinos')
-def step_given_comido_variable(context,cantidad):
-    if isDigit(cantidad):
-        belly.comer(int(cantidad)+1)
-    else:
-        numero=convertir_palabra_a_numero(cantidad)
-        belly.comer(numero+1)        
-
-
-    
+        
 
 
 
@@ -80,15 +91,15 @@ def step_when_wait_time_description(context, time_description):
     # Si se encuentra coincidencia, convertir palabras o números a horas y minutos
     if match.group(0)!='':
         if isDigit(match.group(1)) or isDigit(match.group(2)): 
-            horas=int(match.group(1)) if isDigit(match.group(1)) else 0
-            minutos=int(match.group(2))/60 if isDigit(match.group(2)) else 0
-            print(minutos)
+            hours=int(match.group(1)) if isDigit(match.group(1)) else 0
+            minutes=int(match.group(2))/60 if isDigit(match.group(2)) else 0
+            print(minutes)
             if "mas de" in time_description:
-                belly.esperar(horas + minutos +0.017)
+                belly.esperar(hours + minutes +0.017)
             elif "menos de" in time_description:
-                belly.esperar(horas + minutos-0.017)
+                belly.esperar(hours + minutes-0.017)
             else: 
-                belly.esperar(horas+minutos)
+                belly.esperar(hours+minutes)
         else:
             hours_word = match.group(1) if match.group(1) else "0"
             minutes_word = match.group(2) if match.group(2) else "0"
@@ -100,7 +111,7 @@ def step_when_wait_time_description(context, time_description):
             elif "menos de" in time_description:
                 belly.esperar(total_time_in_hours-0.017)
             else: 
-                belly.esperar(horas+minutos)
+                belly.esperar(hours+minutes)
     else:
         raise ValueError(f"No se pudo interpretar la descripción del tiempo: {time_description}")
 
@@ -147,6 +158,10 @@ def step_then_belly_should_growl(context):
 @then('mi estómago no debería gruñir')
 def step_then_belly_should_not_growl(context):
     assert not belly.esta_gruñendo(), "Se esperaba que el estómago no gruñera, pero lo hizo."
+
+@then('el sistema debe arrojar un error de cantidad no valida')
+def cantidad_no_valida(context):
+    assert belly.cantidad_invalida(), "Cantidad invalida de pepinos"
 
 
 

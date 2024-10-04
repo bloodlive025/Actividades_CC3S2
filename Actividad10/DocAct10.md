@@ -1,5 +1,6 @@
 <h1>BDD con Behave y Gherkin</h1>
-Las historias de  usuario y criterios de aceptacion que se usaran inicialmente son los siguientes:\\
+Las historias de  usuario y criterios de aceptacion que se usaran inicialmente son los siguientes:
+
 
 <h2>Historia de usuario 1: Comer muchos pepinos y esperar el tiempo suficiente</h2>
 
@@ -112,3 +113,139 @@ Las historias de  usuario y criterios de aceptacion que se usaran inicialmente s
 - **Dado** que he ingresado una cantidad no válida de pepinos,  
 - **Cuando** espero cualquier cantidad de tiempo,  
 - **Entonces** el sistema debería arrojar un error de cantidad no válida.
+
+
+<h2>Usando el comando Behave</h2>
+
+![](image.png)
+
+![](image-1.png)
+
+
+-Se puede observar que las 10 historias pasaran
+
+<h2>Analizando el codigo</h2>
+
+El primer script que analizaremos sera belly.py:
+
+```shell
+# src/belly.py
+class Belly:
+    def __init__(self):
+        self.pepinos_comidos = 0
+        self.tiempo_esperado = 0
+
+    def reset(self):
+        self.pepinos_comidos = 0
+        self.tiempo_esperado = 0
+
+    def comer(self, pepinos):
+        print(f"He comido {pepinos} pepinos.")
+        self.pepinos_comidos = pepinos
+
+    def esperar(self, tiempo_en_horas):
+        if tiempo_en_horas > 0:
+            self.tiempo_esperado = tiempo_en_horas
+
+    def esta_gruñendo(self):
+        # Verificar que ambas condiciones se cumplan correctamente:
+        # Se han esperado al menos 1.5 horas Y se han comido más de 10 pepinos
+        if self.tiempo_esperado >= 1.5 and self.pepinos_comidos > 10:
+            return True
+        return False
+    
+    def cantidad_invalida(self):
+        if self.pepinos_comidos > 50:
+            return True
+        return False
+
+```
+
+Definimos la clase belly, donde guardaremos los datos de la cantidad de pepinos comidos,  y el tiempo transcurrido, tambien añadiremos una funcion para verificar si el estomago esta gruñendo y una funcion para verificar si la cantidad es valida o no.
+
+El siguiente script que analizaremos es belly.step:
+
+```shell
+from behave import given, when, then
+from src.belly import Belly
+import re
+
+# Crear una instancia de Belly
+belly = Belly()
+
+#Funcion para verificar si lo ingresado es un numero
+
+def isDigit(digit):
+    if digit  is None or digit=='':
+        return False    
+    try:
+        int(digit)
+        return True
+    except ValueError:
+        return False
+
+
+# Función para convertir palabras numéricas a números
+def convertir_palabra_a_numero(palabra):
+    pattern=r'(\w*)\s*y*\s*(\w*)'
+    match = re.search(pattern,palabra)
+    numeros = {
+        "uno" or "una" or "1": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+"seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once":11 , "doce":12,
+"veinte": 20, "veintuno":21, "veintidos":22,
+"veintitres":23, "veinticuatro":24, "veinticinco":25,"veintiseis":26,
+"veintisiete":27,"veintioscho":28,"veintinueve":29,
+ "treinta": 30, "cuarenta": 40, "cincuenta": 50,
+"sesenta": 60, "setenta": 70, "ochenta": 80, "noventa": 90
+    }
+    num1= numeros.get(match.group(1),0)
+    num2=numeros.get(match.group(2),0)
+    res=num1+num2
+    return res  # Retornar 0 si la palabra no está en el diccionario
+
+```
+
+Esta primera parte del codigo empieza importando las clases given,when,then del modulo behave, tambien importaremos la clase Belly y la libreria re
+
+Creamos una instancia de la clase Belly, llamada belly, y definimos las siguientes funciones que se utilizaran mas adelante:
+
+-isDigit(digit): Esta funcion devolvera True si el valor pasado es del tipo int, de lo contrario retornara False, adicionalmente retornara un False si la cadena pasada esta vacia.
+
+-convertir_palabra_a_numero(palabra): Esta funcion convertira el string palabra a un numero de tipo int. Se usara el patron <h3>(\w*)\s*y*\s*(\w*) </h3> 
+
+para poder capturar los digitos cuando la palabra es compuesta como por ejemplo "treinta y cinco". Esta funcion solo convertira las palabras de los numeros del 1 al 99.
+
+
+```shell
+@given('que he comido "{cantidad}" pepinos')
+def step_given_comido_variable(context,cantidad):
+    pattern = re.compile(r'(?:al menos\s)?(?:menos\sde\s)?(?:mas\sde\s)?(?:un\smonton\sde)?(?:(\w*)?)?')
+    match = pattern.match(cantidad.lower())
+    if 'un monton de' in cantidad:
+        belly.comer(11)
+        return 0
+    print(match.group(1))
+    if match.group(0)!='':
+        if isDigit(match.group(1)):
+            number_pepinos=match.group(1)
+            if "mas de" in cantidad:
+                belly.comer(int(number_pepinos)+1)
+            elif "menos de" in cantidad:
+                belly.comer(int(number_pepinos)-1)
+            else:
+                belly.comer(int(number_pepinos))  
+        else:
+            number_pepinos=convertir_palabra_a_numero(match.group(1))
+            if "mas de" in cantidad:
+                belly.comer(int(number_pepinos)+1)
+            elif "menos de" in cantidad:
+                belly.comer(int(number_pepinos)-1)
+            else:
+                belly.comer(number_pepinos)        
+    else:
+        raise ValueError(f"No se pudo interpretar la cantidad de pepino: {cantidad}")
+
+```
+
+La siguiente parte del codigo de belly_steps.py que analizaremos sera la funcion step_given_comido_variable que tiene como decorador @given.
+
