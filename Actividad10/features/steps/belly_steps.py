@@ -22,6 +22,8 @@ def isDigit(digit):
 
 # Función para convertir palabras numéricas a números
 def convertir_palabra_a_numero(palabra):
+    pattern=r'(\w*)\s*y*\s*(\w*)'
+    match = re.search(pattern,palabra)
     numeros = {
         "uno" or "una" or "1": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
 "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once":11 , "doce":12,
@@ -31,7 +33,11 @@ def convertir_palabra_a_numero(palabra):
  "treinta": 30, "cuarenta": 40, "cincuenta": 50,
 "sesenta": 60, "setenta": 70, "ochenta": 80, "noventa": 90
     }
-    return numeros.get(palabra, 0)  # Retornar 0 si la palabra no está en el diccionario
+    num1= numeros.get(match.group(1),0)
+    num2=numeros.get(match.group(2),0)
+    res=num1+num2
+    return res  # Retornar 0 si la palabra no está en el diccionario
+
 
 
 #Diccionario extendido para numeros
@@ -44,22 +50,22 @@ numeros_extendido = {
 
 @given('que he comido "{cantidad}" pepinos')
 def step_given_comido_variable(context,cantidad):
-    #Manejar cantidades no numericas
     if isDigit(cantidad):
         belly.comer(int(cantidad))
     else:
-        pattern= re.compile(r'(?:([A-z,a-z]+|\d+))?(?:\s?)?(?:([A-z,a-z]+|\d+))?')
-        match=pattern.match(cantidad.lower())
+        numero=convertir_palabra_a_numero(cantidad)
+        belly.comer(numero)        
 
-        if match:
-            decenas=match.group(1) if match.group(1) else "0"
-            unidades=match.group(2) if match.group(2) else "0"
-            decenas=convertir_palabra_a_numero(decenas)
-            unidades=convertir_palabra_a_numero(unidades)
-            numero=decenas+unidades
-            belly.comer(numero)
-        else:
-            raise ValueError(f"No se pudo interpretar la descripcion de los pepinos: {cantidad}")
+
+@given('que he comido mas de "{cantidad}" pepinos')
+def step_given_comido_variable(context,cantidad):
+    if isDigit(cantidad):
+        belly.comer(int(cantidad)+1)
+    else:
+        numero=convertir_palabra_a_numero(cantidad)
+        belly.comer(numero+1)        
+
+
     
 
 
@@ -68,7 +74,42 @@ def step_given_comido_variable(context,cantidad):
 @when('espero "{time_description}"')
 def step_when_wait_time_description(context, time_description):
     # Expresión regular para encontrar horas y minutos en una descripción con palabras o números
-    pattern = re.compile(r'(?:([A-z,a-z]+|\d+)\shoras?)?(?:\s*y?\s*)?(?:([A-z,a-z]+|\d+)\sminutos?)?')
+    pattern = re.compile(r'(?:al menos\s)?(?:menos\sde\s)?(?:mas\sde\s)?(?:(\w*)\shoras?)?(?:\s*y?\s*)?(?:(\w+)\sminutos?)?')
+    match = pattern.match(time_description.lower())
+    print(match.group(2))
+    # Si se encuentra coincidencia, convertir palabras o números a horas y minutos
+    if match.group(0)!='':
+        if isDigit(match.group(1)) or isDigit(match.group(2)): 
+            horas=int(match.group(1)) if isDigit(match.group(1)) else 0
+            minutos=int(match.group(2))/60 if isDigit(match.group(2)) else 0
+            print(minutos)
+            if "mas de" in time_description:
+                belly.esperar(horas + minutos +0.017)
+            elif "menos de" in time_description:
+                belly.esperar(horas + minutos-0.017)
+            else: 
+                belly.esperar(horas+minutos)
+        else:
+            hours_word = match.group(1) if match.group(1) else "0"
+            minutes_word = match.group(2) if match.group(2) else "0"
+            hours = convertir_palabra_a_numero(hours_word)
+            minutes = convertir_palabra_a_numero(minutes_word)
+            total_time_in_hours = hours + (minutes / 60)
+            if "mas de" in time_description:
+                belly.esperar(total_time_in_hours+0.017)
+            elif "menos de" in time_description:
+                belly.esperar(total_time_in_hours-0.017)
+            else: 
+                belly.esperar(horas+minutos)
+    else:
+        raise ValueError(f"No se pudo interpretar la descripción del tiempo: {time_description}")
+
+
+# Cuando espero al menos"{time_description}"
+@when('espero al dsadasdamenos "{time_description}"')
+def step_when_wait_time_description(context, time_description):
+    # Expresión regular para encontrar horas y minutos en una descripción con palabras o números
+    pattern = re.compile(r'(?:(\w+)\shoras?)?(?:\s*y?\s*)?(?:(\w+)\sminutos?)?')
     match = pattern.match(time_description.lower())
     
     # Si se encuentra coincidencia, convertir palabras o números a horas y minutos
@@ -86,6 +127,11 @@ def step_when_wait_time_description(context, time_description):
             belly.esperar(total_time_in_hours)
     else:
         raise ValueError(f"No se pudo interpretar la descripción del tiempo: {time_description}")
+    
+
+    
+
+
 
 
 
