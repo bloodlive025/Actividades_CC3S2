@@ -37,7 +37,7 @@
   
     Escenario: Comer "un montón" de pepinos y esperar 3 horas
       Dado que he comido "un monton de" pepinos
-      Cuando espero "3 horas"
+      Cuando espero "veinticinco horas"
       Entonces mi estómago debería gruñir
 
     Escenario: Comer más de 10 pepinos y esperar 120 minutos
@@ -46,7 +46,7 @@
       Entonces mi estómago debería gruñir
 
     Escenario: Comer "veinticinco pepinos" y esperar 90 minutos
-      Dado que he comido "veinticinco" pepinos
+      Dado que he comido "once" pepinos
       Cuando espero "90 minutos"
       Entonces mi estómago debería gruñir
 

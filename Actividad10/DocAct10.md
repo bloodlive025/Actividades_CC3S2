@@ -186,6 +186,7 @@ def isDigit(digit):
 
 
 # Función para convertir palabras numéricas a números
+# Función para convertir palabras numéricas a números
 def convertir_palabra_a_numero(palabra):
     pattern=r'(\w*)\s*y*\s*(\w*)'
     match = re.search(pattern,palabra)
@@ -195,13 +196,32 @@ def convertir_palabra_a_numero(palabra):
 "veinte": 20, "veintuno":21, "veintidos":22,
 "veintitres":23, "veinticuatro":24, "veinticinco":25,"veintiseis":26,
 "veintisiete":27,"veintioscho":28,"veintinueve":29,
+    }
+    
+    numeros2 = {
+        "uno" or "una" or "1": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+"seis": 6, "siete": 7, "ocho": 8, "nueve": 9
+    }
+
+    numeros3 = {
  "treinta": 30, "cuarenta": 40, "cincuenta": 50,
 "sesenta": 60, "setenta": 70, "ochenta": 80, "noventa": 90
     }
+    
     num1= numeros.get(match.group(1),0)
-    num2=numeros.get(match.group(2),0)
-    res=num1+num2
-    return res  # Retornar 0 si la palabra no está en el diccionario
+    num2=numeros2.get(match.group(2),0)
+    num3=numeros3.get(match.group(1),0)
+    if num1==0 and num3==0:
+        return 0
+    elif num3==0 and num2==0:
+        return num1
+    elif num3!=0 and num2!=0:
+        res=num3+num2
+        return res
+    elif num3!=0 and match.group(2)=='':
+        return num3
+    else:
+        return 0
 
 ```
 
@@ -215,37 +235,125 @@ Creamos una instancia de la clase Belly, llamada belly, y definimos las siguient
 
 para poder capturar los digitos cuando la palabra es compuesta como por ejemplo "treinta y cinco". Esta funcion solo convertira las palabras de los numeros del 1 al 99.
 
+Tambien esta funcion devolvera 0 cuando se le pasa cadenas como "veintitres y cinco" o "uno y diez". Esto gracias a las condicionales.
+
 
 ```shell
 @given('que he comido "{cantidad}" pepinos')
 def step_given_comido_variable(context,cantidad):
-    pattern = re.compile(r'(?:al menos\s)?(?:menos\sde\s)?(?:mas\sde\s)?(?:un\smonton\sde)?(?:(\w*)?)?')
-    match = pattern.match(cantidad.lower())
-    if 'un monton de' in cantidad:
+    if 'un monton de' == cantidad:
         belly.comer(11)
         return 0
-    print(match.group(1))
-    if match.group(0)!='':
-        if isDigit(match.group(1)):
-            number_pepinos=match.group(1)
-            if "mas de" in cantidad:
-                belly.comer(int(number_pepinos)+1)
-            elif "menos de" in cantidad:
-                belly.comer(int(number_pepinos)-1)
-            else:
-                belly.comer(int(number_pepinos))  
+    pattern = re.compile(r'(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(\w*\s?y?\s?\w*)?')
+    match = pattern.match(cantidad.lower())
+    print(match.group(0))
+    if isDigit(match.group(1)):
+        number_pepinos=match.group(1)
+        if "mas de" in cantidad:
+            belly.comer(int(number_pepinos)+1)
+        elif "menos de" in cantidad:
+            belly.comer(int(number_pepinos)-1)
         else:
-            number_pepinos=convertir_palabra_a_numero(match.group(1))
-            if "mas de" in cantidad:
-                belly.comer(int(number_pepinos)+1)
-            elif "menos de" in cantidad:
-                belly.comer(int(number_pepinos)-1)
-            else:
-                belly.comer(number_pepinos)        
+            belly.comer(int(number_pepinos))  
     else:
-        raise ValueError(f"No se pudo interpretar la cantidad de pepino: {cantidad}")
+        number_pepinos=convertir_palabra_a_numero(match.group(1))
+        if int(number_pepinos)==0:
+            raise ValueError(f"Nose pudo interpretar la cantidad de pepinos:{match.group(0)}")
+        if "mas de" in cantidad:
+            belly.comer(int(number_pepinos)+1)
+        elif "menos de" in cantidad:
+            belly.comer(int(number_pepinos)-1)
+        else:
+            belly.comer(int(number_pepinos))        
+
+
+La siguiente parte del codigo de belly_steps.py que analizaremos sera la funcion step_given_comido_variable que tiene como decorador @given, este decorador se utiliza para conectar el paso given del archivo belly.feature.
+
+La funcion definida toma el contexto junto con la variable dinamica cantidad. 
+
+La primera accion que realiza es que si la cadena pasada es igual a 'un monton de' entonces se comera la cantidad de pepinos igual a 11.
+
+La segunda accion que se realiza es definir un patron usando la libreria regex. El patron a usar en este caso es:
+
+<h3>(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(\w*\s?y?\s?\w*)?</h3>
+
+Este patron tiene las siguientes partes: 
+
+-(?:al menos\s)?: Es un grupo sin captura, que agrupara un grupo de la forma "al menos " de manera opcional. Esto quiere decir que si no se encuentra la cadena anterior entonces no se agrupara nada y se pasa al siguiente grupo.
+
+-(\w*\s?y?\s?\w*): Este grupo capturara palabras de la forma "treinta y dos" ,"32",treinta". Es decir , capturara los numeros de 1 al 99 ya sea si lo escribimos en numero o en letras.
+
+Luego usaremos el metodo  match=pattern.match(cantidad.lower())  para guardar los grupos capturados en la variable match. Por ejemplo si le pasamos "Treinta y dos" los grupos guardados son los siguientes: match.group(1) sera igual a "treinta"  , match.group(2) sera igual a "dos".
+
+El patron agrupara las palabras al menos, mas de o menos de, pero no los guardara en nigun grupo. Por ello si por ejemplo "mas de" se encuentra en la cadena cantidad entonces agrupara esta palabra, pero no lo guardara en ningun grupo, si luego de la palabra 'mas de' se encuantra un numero, entonces recien lo capturara.
+
+Si le pasamos cualquier tipo de palabra, guardara solo la primera palabra pasada. Esto se manejara en la funcion convertir_palabra_a_numero que si no se encuentra en el diccionario de esa clase entonces el valor devuelto sera igual a 0. Y si el numero de pepinos es igual a cero, el programa me lanzara un error.
+
+Tenemos dos formas de pasar un numero, ya sea como digitos o como palabra. Si la cadena que se captura es un numero, pasara por la funcion isDigito() que nos devolvera True, en cambio si la cadena pasada es una palabra o esta vacia, la funcion isDigito() nos devolvera False.
+
+En la condicional para saber si es un digito o no existe condicionales que preguntaran si la palabra mas de, menos de, al menos se encuentran en la cadena. Si se encuentra que 'mas de' se encuentra en la cadena entonces, se llamara a la funcion belly.comer pero el numero de pepinos pasados se aumentara en uno. Cuando es 'menos de' el numero de pepinos pasados sera disminuido en 1 y si se encuentra al menos, el numero de pepinos no cambiara.
+
+
+```shell
+@when('espero "{time_description}"')
+def step_when_wait_time_description(context, time_description):
+    # Expresión regular para encontrar horas y minutos en una descripción con palabras o números
+    pattern = re.compile(r'(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(?:(.*)\shoras?)?(?:\s*y?\s*)?(?:(.+)\sminutos?)?')
+    match = pattern.match(time_description.lower())
+    # Si se encuentra coincidencia, convertir palabras o números a horas y minutos
+    if isDigit(match.group(1)) or isDigit(match.group(2)): 
+        hours=int(match.group(1)) if isDigit(match.group(1)) else 0
+        minutes=int(match.group(2))/60 if isDigit(match.group(2)) else 0
+        if "mas de" in time_description:
+            belly.esperar(hours + minutes +0.017)
+        elif "menos de" in time_description:
+            belly.esperar(hours + minutes-0.017)
+        else: 
+            belly.esperar(hours+minutes)
+    else:
+        hours_word = match.group(1) if match.group(1) else "0"
+        minutes_word = match.group(2) if match.group(2) else "0"
+        hours = convertir_palabra_a_numero(hours_word)
+        minutes = convertir_palabra_a_numero(minutes_word)
+        total_time_in_hours = hours + (minutes / 60)
+        if total_time_in_hours ==0:
+            raise ValueError(f"Nose pudo interpretar la cantidad de pepinos:{match.group(0)}")
+        if "mas de" in time_description:
+            belly.esperar(total_time_in_hours+0.017)
+        elif "menos de" in time_description:
+            belly.esperar(total_time_in_hours-0.017)
+        else: 
+            belly.esperar(hours+minutes)
 
 ```
 
-La siguiente parte del codigo de belly_steps.py que analizaremos sera la funcion step_given_comido_variable que tiene como decorador @given.
+El siguiente codigo a analizar es el decorador @when. Este decorador tiene como funcion a step_when_wait_time_description. El patron en esta ocasion es el siguiente:
 
+<h3>(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(?:(.*)\shoras?)?(?:\s*y?\s*)?(?:(.+)\sminutos?)?</h3>
+
+El cual capturara las horas y los minutos que se les pase. Capturara cadenas como "diez horas y veinticinco minutos","10 horas", "al menos 10 horas", etc. Solo guardara en los grupos los numeros que esten antes de horas y minutos. El codigo es muy parecido al anterior, con la diferencia que ahora trabajaremos con una nueva variable minutos, que sera dividida entre 60 antes de ser añadido a belly.esperar().
+
+```shell
+# Entonces mi estómago debería gruñir
+@then('mi estómago debería gruñir')
+def step_then_belly_should_growl(context):
+    assert belly.esta_gruñendo(), "Se esperaba que el estómago gruñera, pero no lo hizo."
+
+# Entonces mi estómago no debería gruñir
+@then('mi estómago no debería gruñir')
+def step_then_belly_should_not_growl(context):
+    assert not belly.esta_gruñendo(), "Se esperaba que el estómago no gruñera, pero lo hizo."
+
+@then('el sistema debe arrojar un error de cantidad no valida')
+def cantidad_no_valida(context):
+    assert belly.cantidad_invalida(), "Cantidad invalida de pepinos"
+
+```
+
+La siguiente parte del codigo es el decorador @then. Este decorado tiene las siguientes funciones:
+
+step_then_belly_should_grow: Se llamara a esta funcion cuando se le pase el texto 'mi estomago deberia gruñir'. Si belly.esta-gruñendo() es falso entonces devolvera un error de Assert. 
+
+step_then_belly_should_not_growl(context): Se llamara a esta funcion cuando se le pase el texto 'mi estomago no deberia gruñir'. Si belly.esta-gruñendo() es verdadero entonces devolvera un error de Assert. 
+
+cantidad_no_valida: Se llamara a esta funcion cuando se le pase el texto 'el sistema debe arrojar un error de cantidad no valida'. Si belly.cantidad_invalida() es falso entonces devolvera un error de Assert. Esta error ocurrira cuando la cantidad de pepinos sea mayor a 50 
