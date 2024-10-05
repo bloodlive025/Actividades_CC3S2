@@ -357,3 +357,150 @@ step_then_belly_should_grow: Se llamara a esta funcion cuando se le pase el text
 step_then_belly_should_not_growl(context): Se llamara a esta funcion cuando se le pase el texto 'mi estomago no deberia gruñir'. Si belly.esta-gruñendo() es verdadero entonces devolvera un error de Assert. 
 
 cantidad_no_valida: Se llamara a esta funcion cuando se le pase el texto 'el sistema debe arrojar un error de cantidad no valida'. Si belly.cantidad_invalida() es falso entonces devolvera un error de Assert. Esta error ocurrira cuando la cantidad de pepinos sea mayor a 50 
+
+
+<h2>1.Caracteristica del estomago extendida</h2>
+
+Cuando le agregamos las escenarios de caracteristica de estomago extendido todos pasan.
+
+```shell
+  Característica: Característica del Estómago Extendida
+
+    Escenario: Comer diferentes cantidades de pepinos en varios tiempos
+        Dado que he comido "30" pepinos
+        Cuando espero "una hora y treinta minutos"
+        Entonces mi estómago debería gruñir
+
+    Escenario: Comer pepinos sin especificar cantidad exacta
+        Dado que he comido "un monton de" pepinos
+        Cuando espero "3 horas"
+        Entonces mi estómago debería gruñir
+
+    Escenario: Comer pepinos y esperar un tiempo exacto en minutos
+        Dado que he comido "20" pepinos
+        Cuando espero "120 minutos"
+        Entonces mi estómago debería gruñir
+
+    Escenario: Comer pepinos en palabras y tiempo en minutos
+        Dado que he comido "veinticinco" pepinos
+        Cuando espero "noventa minutos"
+        Entonces mi estómago debería gruñir
+
+```
+
+![](image-3.png)
+
+
+<h2>Casos de prueba con excepciones</h2>
+El sistema no aceptara un numero tan grande de pepinos como por ejemplo 1000 pepinos.
+
+```shell
+    Escenario: Comer una cantidad no válida de pepinos
+      Dado que he comido "1000" pepinos
+      Cuando espero "2 horas"
+      Entonces el sistema debe arrojar un error de cantidad no valida
+```
+
+![](image-4.png)
+
+<h2>Esperar en segundos</h2>
+
+```shell
+    Escenario: Comer pepinos y esperar en segundos
+        Dado que he comido "40" pepinos
+        Cuando espero "5400 segundos"
+        Entonces mi estómago debería gruñir
+```
+
+![](image-5.png)
+
+<h2>Caso de pruebas con numeros en ingles</h2>
+
+```shell
+    Escenario: Comer una cantidad no válida de pepinos
+      Dado que he comido "thirty-one" pepinos
+      Cuando espero "one hours thirty minutes"
+      Entonces mi estómago debería gruñir
+```
+
+Agremos en el diccionario los numeros en ingles para que los reconozca:
+
+```shell
+    numeros = {
+        "uno": 1, "una":1 ,"dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+"seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once":11 , "doce":12,
+"trece":13,"catorce":14,"quince":15,"dieciseis":16,"diecisiete":17,"dieciocho":18,"diecinueve":19,
+"veinte": 20, "veintuno":21, "veintidos":22,
+"veintitres":23, "veinticuatro":24, "veinticinco":25,"veintiseis":26,
+"veintisiete":27,"veintioscho":28,"veintinueve":29, 
+"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+"six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+"eleven":11,"twelve":12,"thirteen":13,"fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,
+"eighteen":18,"nineteen":19,"twenty":20,"twenty-one":21,"twenty-two":22,"twenty-three":23,"twenty-four":24,
+"twenty-five":25,"twenty-six":26,"twenty-seven":27,"twenty-eight":28,"twenty-nine":29,"thirty":30,"thirty-one":31,
+"thirty-two": 32, "thirty-three": 33, "thirty-four": 34, "thirty-five": 35, "thirty-six": 36, 
+"thirty-seven": 37, "thirty-eight": 38, "thirty-nine": 39, "forty": 40, "forty-one": 41, 
+"forty-two": 42, "forty-three": 43, "forty-four": 44, "forty-five": 45, "forty-six": 46, 
+"forty-seven": 47, "forty-eight": 48, "forty-nine": 49, "fifty": 50}
+
+```
+
+Y luego de pasar las pruebas:
+
+![](image-6.png)
+
+<h2>Esperar un numero aleatorio de horas en un rango</h2>
+```shell
+    Escenario: Comer pepinos y esperar un tiempo aleatorio
+        Dado que he comido "25" pepinos
+        Cuando espero un tiempo aleatorio entre 1 y 3 horas
+        Entonces mi estómago debería gruñir
+```
+
+Para poder manejar esta prueba agregaremos la siguiente funcion en el decorador @when.
+
+```shell
+#Tiempo Aleatorio
+@when('espero un tiempo aleatorio entre {min_time:d} y {max_time:d} horas')
+def step_when_wait_random_time(context, min_time, max_time):
+    tiempo_aleatorio = random.uniform(min_time, max_time)
+    print(f"Esperando un tiempo aleatorio de {tiempo_aleatorio:.2f} horas.")
+    belly.esperar(tiempo_aleatorio)
+
+```
+
+Cuando hagamos el test de este escencario, se generara un numero aleatorio entre 1 y 3 para las horas. Dependiendo de este numero la prueba pasara o no.
+
+Por ejemplo:
+
+![](image-7.png)
+
+El test no paso pues el numero obtenido fue menor a 1.5 horas.
+
+En cambio:
+
+![](image-8.png)
+
+Si pasa el test pues el numero obtenido aleatoriamente fue mayor a 1.5.
+
+
+<h2>Unidades fraccionarias de pepinos</h2>
+
+```shell
+    Escenario: Comer medio pepino y esperar
+        Dado que he comido 0.5 pepinos
+        Cuando espero "2 horas"
+        Entonces mi estómago no debería gruñir
+```
+
+Se debe poder aceptar el escenario cuando se coma una cantidad fraccionario de pepinos, por lo cual se añadira la siguiente funcion debajo del decorador @given.
+
+```shell
+@given('que he comido {cantidad:f} pepinos')
+def step_given_eaten_fractional_cukes(context, cantidad):
+    belly.comer(cantidad)
+```
+
+![](image-9.png)
+
+<h2>Validaciones adicionales en belly.py</h2>

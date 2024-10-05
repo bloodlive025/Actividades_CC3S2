@@ -1,6 +1,6 @@
 from behave import given, when, then
 from src.belly import Belly
-import re
+import re,random
 
 # Crear una instancia de Belly
 belly = Belly()
@@ -19,14 +19,24 @@ def isDigit(digit):
 
 # Función para convertir palabras numéricas a números
 def convertir_palabra_a_numero(palabra):
-    pattern=r'(\w*)\s*y*\s*(\w*)'
+    pattern=r'(.*)\s*y*\s*(.*)'
     match = re.search(pattern,palabra)
     numeros = {
-        "uno" or "una" or "1": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+        "uno": 1, "una":1 ,"dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
 "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once":11 , "doce":12,
+"trece":13,"catorce":14,"quince":15,"dieciseis":16,"diecisiete":17,"dieciocho":18,"diecinueve":19,
 "veinte": 20, "veintuno":21, "veintidos":22,
 "veintitres":23, "veinticuatro":24, "veinticinco":25,"veintiseis":26,
-"veintisiete":27,"veintioscho":28,"veintinueve":29,
+"veintisiete":27,"veintioscho":28,"veintinueve":29, 
+"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+"six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+"eleven":11,"twelve":12,"thirteen":13,"fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,
+"eighteen":18,"nineteen":19,"twenty":20,"twenty-one":21,"twenty-two":22,"twenty-three":23,"twenty-four":24,
+"twenty-five":25,"twenty-six":26,"twenty-seven":27,"twenty-eight":28,"twenty-nine":29,"thirty":30,"thirty-one":31,
+"thirty-two": 32, "thirty-three": 33, "thirty-four": 34, "thirty-five": 35, "thirty-six": 36, 
+"thirty-seven": 37, "thirty-eight": 38, "thirty-nine": 39, "forty": 40, "forty-one": 41, 
+"forty-two": 42, "forty-three": 43, "forty-four": 44, "forty-five": 45, "forty-six": 46, 
+"forty-seven": 47, "forty-eight": 48, "forty-nine": 49, "fifty": 50
 
     }
 
@@ -92,7 +102,9 @@ def step_given_comido_variable(context,cantidad):
         else:
             belly.comer(int(number_pepinos))        
 
-
+@given('que he comido {cantidad:f} pepinos')
+def step_given_eaten_fractional_cukes(context, cantidad):
+    belly.comer(cantidad)
 
         
 
@@ -102,24 +114,31 @@ def step_given_comido_variable(context,cantidad):
 @when('espero "{time_description}"')
 def step_when_wait_time_description(context, time_description):
     # Expresión regular para encontrar horas y minutos en una descripción con palabras o números
-    pattern = re.compile(r'(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(?:(.*)\shoras?)?(?:\s*y?\s*)?(?:(.+)\sminutos?)?')
+    pattern = re.compile(r'(?:al\smenos\s|menos\sde\s|mas\sde\s?)?(?:(.*)\s(?:horas?|hours?))?(?:\s*y?\s*)?(?:(.+)\s(?:minutos?|minutes?))?(?:\s*y?\s*)?(?:(.+)\s(?:segundos?|seconds?))?')
     match = pattern.match(time_description.lower())
+    print(match.group(2))
     # Si se encuentra coincidencia, convertir palabras o números a horas y minutos
-    if isDigit(match.group(1)) or isDigit(match.group(2)): 
+    if isDigit(match.group(1)) or isDigit(match.group(2)) or isDigit(match.group(3)): 
         hours=int(match.group(1)) if isDigit(match.group(1)) else 0
         minutes=int(match.group(2))/60 if isDigit(match.group(2)) else 0
+        seconds=int(match.group(3))/3600 if isDigit(match.group(3)) else 0
         if "mas de" in time_description:
-            belly.esperar(hours + minutes +0.017)
+            belly.esperar(hours + minutes + seconds +0.017)
         elif "menos de" in time_description:
-            belly.esperar(hours + minutes-0.017)
+            belly.esperar(hours + minutes + seconds-0.017)
         else: 
-            belly.esperar(hours+minutes)
+            belly.esperar(hours+minutes+seconds)
     else:
         hours_word = match.group(1) if match.group(1) else "0"
         minutes_word = match.group(2) if match.group(2) else "0"
+        seconds_word=match.group(3) if match.group(3) else "0"
+        print(minutes_word)
         hours = convertir_palabra_a_numero(hours_word)
         minutes = convertir_palabra_a_numero(minutes_word)
-        total_time_in_hours = hours + (minutes / 60)
+        seconds=convertir_palabra_a_numero(seconds_word)
+        total_time_in_hours = hours + (minutes/60) + (seconds/3600)
+        print(hours,minutes,seconds)
+        print(total_time_in_hours)
         if total_time_in_hours ==0:
             raise ValueError(f"Nose pudo interpretar la cantidad de pepinos:{match.group(0)}")
         if "mas de" in time_description:
@@ -127,10 +146,16 @@ def step_when_wait_time_description(context, time_description):
         elif "menos de" in time_description:
             belly.esperar(total_time_in_hours-0.017)
         else: 
-            belly.esperar(hours+minutes)
+            belly.esperar(total_time_in_hours)
+
+#Tiempo Aleatorio
+@when('espero un tiempo aleatorio entre {min_time:d} y {max_time:d} horas')
+def step_when_wait_random_time(context, min_time, max_time):
+    tiempo_aleatorio = random.uniform(min_time, max_time)
+    print(f"Esperando un tiempo aleatorio de {tiempo_aleatorio:.2f} horas.")
+    belly.esperar(tiempo_aleatorio)
 
 
-    
 
 
 # Entonces mi estómago debería gruñir

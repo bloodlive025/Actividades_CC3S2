@@ -55,6 +55,17 @@
       Cuando espero "2 horas"
       Entonces el sistema debe arrojar un error de cantidad no valida
 
+    Escenario: Comer una cantidad no válida de pepinos
+      Dado que he comido "thirty-one" pepinos
+      Cuando espero "2 horas"
+      Entonces mi estómago debería gruñir
+
+    
+
+
+
+
+
 
 
 
