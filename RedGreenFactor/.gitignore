@@ -1,0 +1,7 @@
+venv/
+# Ignorar todos los archivos de caché
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.coverage
